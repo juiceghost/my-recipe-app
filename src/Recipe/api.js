@@ -1,25 +1,34 @@
 import { useState, useEffect } from 'react';
 
-const URLS = {
-    'randomRecipes': 'https://api.spoonacular.com/recipes/random',
-    'recipeInfo': ''
-}
-const API_KEY = "526eba0616874a9db294da2d1502ca37";
+import * as API from '../constants/urls';
+
 const numberOfHits = 10;
+
+const RecipeItem = (props) => (
+    <li>
+        {props.recipe.title}
+    </li>
+);
+const RecipeList = (props) => (
+    <ul>
+        {props.recipes.map(recipe => (
+            <RecipeItem recipe={recipe} key={recipe.id} />
+        ))}
+    </ul>
+);
 
 const FetchRecipes = () => {
     const [data, setData] = useState(null);
     const [points, setPoints] = useState(Number(JSON.parse(localStorage.getItem('points'))) || 0)
 
-
+    const hej = null;
     useEffect(() => {
-        console.log("Hej från useEffect")
-        fetch(`${URLS.randomRecipes}?number=${numberOfHits}&apiKey=${API_KEY}`)
+        fetch(`${API.URLS.randomRecipes}?number=${numberOfHits}&apiKey=${API.API_KEY}`)
         .then(response => response.json())
-        .then(data => {
+        .then(resData => {
             // nu har vi fått ett resp
             // in i statet, uppdatera points remaining i state & localStorage
-            setData(data);
+            setData(resData.recipes);
             localStorage.setItem('points', points + 1);
             setPoints(points + 1);
             
@@ -30,6 +39,7 @@ const FetchRecipes = () => {
     return (<div>
         <h3>FetchRecipes</h3>
         <p>You have {} calls remaining today</p>
+        {data ? <RecipeList recipes={data} /> : null}
         </div>)
 }
 
