@@ -1,28 +1,61 @@
 import { useState, useEffect } from 'react';
+import styled from 'styled-components';
 
 import * as API from '../constants/urls';
+const controller = new AbortController();
+const { signal } = controller;
 
 const numberOfHits = 10;
+
+const RecipeListContainer = styled.div`
+width: 100%
+`
+const RecipeListUL = styled.ul`
+list-style: none;
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+align-items: center;
+justify-content: center;
+`
+const RecipeListLI = styled.li`
+width: 180px;
+min-height: 180px;
+border: 1px solid black;
+border-radius: 15px;
+padding: 20px;
+margin: 0.5rem;
+background-color: #CBC3E3;
+`
+const DetailImageContainer = styled.div`
+/* background: ${props => `url(${props.image}) no-repeat top center`}; */
+& > img {
+    width: 100%;
+    height: 146px;
+    top:0;
+  }
+`
+
 
 const RecipeItem = (props) => {
     const [recipeDetail, setRecipeDetail] = useState(null);
 
     return (
         <>
-            <li onClick={() => setRecipeDetail(props.recipe.id)}>
+            <RecipeListLI onClick={() => setRecipeDetail(props.recipe.id)}>
                 {props.recipe.title}
-            </li>
-            {recipeDetail && <FetchRecipe recipe={props.recipe} />}
+                {recipeDetail && <FetchRecipe recipe={props.recipe} />}
+            </RecipeListLI>
         </>
     );
 }
 
 const RecipeList = (props) => (
-    <ul>
+    <RecipeListUL>
         {props.recipes.map(recipe => (
             <RecipeItem recipe={recipe} key={recipe.id} />
         ))}
-    </ul>
+    </RecipeListUL>
 );
 
 const FetchRecipe = (props) => {
@@ -40,13 +73,19 @@ const FetchRecipe = (props) => {
                 console.log(resData)
             })
             .catch(error => console.log(error))
+
+            return () => {
+
+            }
     }, []);
 
     return (
         <>{data &&
-            <p onClick={() => setData(null)}>{data.title}
+             <DetailImageContainer onClick={() => setData(null)}>
                 <img src={data.image} alt='Picture of food' />
-            </p>
+            </DetailImageContainer> 
+           /*  <DetailImageContainer image={data.image} /> */
+
         }
         </>
     )
@@ -70,11 +109,9 @@ const FetchRecipes = () => {
             .catch(error => console.log(error))
     }, []);
 
-    return (<div>
-        <h3>FetchRecipes</h3>
-        <p>You have { } calls remaining today</p>
+    return (<RecipeListContainer>
         {data && <RecipeList recipes={data} />}
-    </div>)
+    </RecipeListContainer>)
 }
 
 export default FetchRecipes;
